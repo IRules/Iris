@@ -18,7 +18,9 @@
 
 package com.volmit.iris.util.noise;
 
+import com.volmit.iris.util.collection.KSet;
 import com.volmit.iris.util.interpolation.InterpolationMethod;
+import com.volmit.iris.util.math.RNG;
 
 public enum NoiseType {
     WHITE(WhiteNoise::new),
@@ -77,6 +79,24 @@ public enum NoiseType {
     }
 
     public NoiseGenerator create(long seed) {
-        return f.create(seed);
+        return f.create(seed).offset(seed);
+    }
+
+    public static void main(String[] args) {
+        long[] seeds = new long[10000];
+        for (int i = 0; i < seeds.length; i++) {
+            seeds[i] = RNG.r.lmax();
+        }
+
+        for (NoiseType t : NoiseType.values()) {
+            KSet<Double> set = new KSet<>();
+            for (long seed : seeds) {
+                set.add(t.create(seed).noise(0, 0));
+            }
+
+            if (set.size() == 1) {
+                System.out.println(t + " " + set);
+            }
+        }
     }
 }
